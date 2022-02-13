@@ -2,24 +2,33 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/rajatgupta24/go-url-shortener/handler"
+	"github.com/rajatgupta24/go-url-shortener/store"
 )
 
-func getDate() {
-	fmt.Println("The time is", time.Now())
-}
-
-func getRandomNumber() {
-	rand.Seed(time.Now().UTC().UnixNano())
-	ans := rand.Intn(100)
-
-	fmt.Println(ans)
-}
-
 func main() {
-	fmt.Println("Welcome to the playground!")
+	r := gin.Default()
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Hello there!!!",
+		})
+	})
 
-	// getDate()
-	getRandomNumber()
+	r.POST("/create-short-url", func(c *gin.Context) {
+		handler.CreateShortUrl(c)
+	})
+
+	r.GET("/:shortUrl", func(c *gin.Context) {
+		handler.HandleShortUrlRedirect(c)
+	})
+
+	store.InitializeStore()
+
+	err := r.Run(":5000")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to start the web server - Error: %v", err))
+	}
 }
